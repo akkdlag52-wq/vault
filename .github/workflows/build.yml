@@ -1,6 +1,67 @@
-name: build
+name: Build Android APK
 
-# Some words of caution before modifying this workflow:
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x ./gradlew
+
+    - name: Build Release APK
+      run: ./gradlew assembleRelease
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: PulseMusic-APK
+        path: app/build/outputs/apk/release/app-release-unsigned.apk
+        retention-days: 30
+
+package com.pulsemusic.app.ui.theme
+
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+
+// Яркая палитра — неоновый закат
+private val SunsetPink = Color(0xFFFF2E63)
+private val SunsetOrange = Color(0xFFFF8A00)
+private val DeepPurple = Color(0xFF5B2C6F)
+private val SoftLavender = Color(0xFFE0AAFF)
+
+private val LightColors = lightColorScheme(
+    primary = SunsetPink,
+    secondary = SunsetOrange,
+    tertiary = DeepPurple,
+    background = Color(0xFFFFF5F7),
+    surface = Color.White,
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onBackground = Color(0xFF2D1B2E)
+)
+
+@Composable
+fun PulseMusicTheme(content: @Composable () -> Unit) {
+    MaterialTheme(
+        colorScheme = LightColors,
+        content = content
+    )
+}# Some words of caution before modifying this workflow:
 
 # This file and workflow have been carefully architected to meet the following requirements:
 #   * Builds and tests the correct artifacts in both CE and Ent while maintaining a merge-conflict-free
